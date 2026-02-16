@@ -56,7 +56,8 @@ def _create_default_config(configparser, filename):
     configparser.set('other', 'aalib', 'False')
     configparser.set('other', 'config_version', '1')
 
-    configparser.write(open(filename, 'w'))
+    with open(filename, 'w') as f:
+        configparser.write(f)
 
 
 def _check_config(configparser, filename):
