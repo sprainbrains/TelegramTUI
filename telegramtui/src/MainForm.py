@@ -1,6 +1,5 @@
 import curses
 from datetime import timedelta
-from telegramtui.src.telegramApi import client
 from telegramtui.src import npyscreen
 from telegramtui.src import chatBox
 from telegramtui.src import messageBox
@@ -11,7 +10,6 @@ from telegramtui.src.config import get_config
 
 
 class MainForm(npyscreen.FormBaseNew):
-
     def create(self):
         # Events
         self.add_event_hander("event_chat_select", self.event_chat_select)
@@ -30,19 +28,27 @@ class MainForm(npyscreen.FormBaseNew):
         y, x = self.useable_space()
 
         # create ui form
-        self.chatBoxObj = self.add(chatBox.ChatBox, name="Chats", value=0, relx=1, max_width=x // 5, rely=2,
-                                   max_height=-5)
+        self.chatBoxObj = self.add(chatBox.ChatBox, name="Chats", value=0, relx=1, max_width=x // 5, rely=1,
+                                   max_height=-6)
         self.chatBoxObj.create(emoji=self.emoji)
 
-        self.messageBoxObj = self.add(messageBox.MessageBox, rely=2, relx=(x // 5) + 1, max_height=-5, editable=True,
+        self.messageBoxObj = self.add(messageBox.MessageBox, rely=1, relx=(x // 5) + 1, max_height=-6, editable=True,
                                       custom_highlighting=True, highlighting_arr_color_data=[0])
         self.messageBoxObj.create(emoji=self.emoji, aalib=self.aalib)
 
         self.FunctionalBox = self.add(functionalBox.FunctionalBox, name="Other", value=0, relx=1, max_width=x // 5,
-                                      max_height=-5, )
+                                      max_height=5, rely=-8)
         self.FunctionalBox.values = ["🕮  Contacts"] if self.emoji else ["Contacts"]
 
-        self.inputBoxObj = self.add(inputBox.InputBox, name="Input", relx=(x // 5) + 1, rely=-7)
+        self.inputBoxObj = self.add(inputBox.InputBox, name="Input", relx=(x // 5) + 1, rely=-8, max_height=5)
+
+        self.help_bottom = self.add(
+            npyscreen.FixedText,
+            value=self.build_help(),
+            editable=False,
+            max_height=1,
+            rely=-3,
+        )
 
         # inti handlers
         new_handlers = {
@@ -58,10 +64,12 @@ class MainForm(npyscreen.FormBaseNew):
             "^F": self.forward_message,
             # delete message
             "^R": self.remove_message,
-            # delete message
+            # download file
             "^D": self.download_file,
             # send file
-            "^O": self.file_send
+            "^O": self.file_send,
+            # send emoji
+            "^E": self.open_emoji_picker
         }
         self.add_handlers(new_handlers)
 
@@ -71,6 +79,7 @@ class MainForm(npyscreen.FormBaseNew):
 
     # events
     def event_chat_select(self, event):
+        client = self.parentApp.client
         current_user = self.chatBoxObj.value
         client.dialogs[current_user].unread_count = 0
 
@@ -89,6 +98,7 @@ class MainForm(npyscreen.FormBaseNew):
 
     # handling methods
     def message_send(self, event):
+        client = self.parentApp.client
         current_user = self.chatBoxObj.value
         message = self.inputBoxObj.value.strip()
         if message is not "":
@@ -110,6 +120,23 @@ class MainForm(npyscreen.FormBaseNew):
 
     def download_file(self, event):
         pass
+    
+    def open_emoji_picker(self, _=None):
+        self.parentApp.switchForm("EMOJI_PICKER")
+
+    def insert_emoji(self, emoji_str):
+        input_box = self.inputBoxObj
+        editor = input_box.entry_widget
+
+        current = editor.value or ""
+        pos = editor.cursor_position
+
+        new_value = current[:pos] + emoji_str + current[pos:]
+        editor.value = new_value
+        editor.cursor_position = pos + len(emoji_str)
+
+        editor.display()
+        self.display()
 
     def event_update_main_form(self, event):
         self.display()
@@ -121,9 +148,9 @@ class MainForm(npyscreen.FormBaseNew):
 
     # update loop
     def while_waiting(self):
+        client = self.parentApp.client
         current_user = self.chatBoxObj.value
 
-        client.client.sync_updates()
         if client.need_update_message:
             if client.need_update_current_user == current_user:
                 self.messageBoxObj.update_messages(current_user)
@@ -146,3 +173,13 @@ class MainForm(npyscreen.FormBaseNew):
                 self.messageBoxObj.update_messages(current_user)
             client.need_update_current_user = -1
             client.need_update_read_messages = 0
+
+    def build_help(self):
+        return (
+            "← ↑ ↓ →: move | "
+            "TAB/Shift+TAB: to change section | "
+            "Enter: select | "
+            "^E: open emoji picker | "
+            "^Q: quit | "
+            "^S: send message"
+        )

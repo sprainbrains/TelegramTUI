@@ -5,9 +5,13 @@ from telegramtui.src.SendFileForm import SendFileForm
 from telegramtui.src.MessageInfoForm import MessageInfoForm
 from telegramtui.src.ForwardMessageForm import ForwardMessageForm
 from telegramtui.src.RemoveMessageForm import RemoveMessageForm
+from telegramtui.src.EmojiPickerForm import EmojiPickerForm
 
 
 class App(npyscreen.StandardApp):
+    def __init__(self, client):
+        super().__init__()
+        self.client = client
 
     def onStart(self):
         self.MainForm = self.addForm("MAIN", MainForm)
@@ -16,3 +20,4 @@ class App(npyscreen.StandardApp):
         self.MessageInfoForm = self.addForm("MESSAGE_INFO", MessageInfoForm)
         self.ForwardMessageForm = self.addForm("FORWARD_MESSAGE", ForwardMessageForm)
         self.RemoveMessageForm = self.addForm("REMOVE_MESSAGE", RemoveMessageForm, lines=5, columns=20)
+        self.EmojiPickerForm = self.addForm("EMOJI_PICKER", EmojiPickerForm)

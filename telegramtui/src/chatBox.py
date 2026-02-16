@@ -1,5 +1,4 @@
 from telegramtui.src import npyscreen
-from telegramtui.src.telegramApi import client
 import time
 
 
@@ -13,6 +12,7 @@ class ChatBox(npyscreen.BoxTitle):
         self.parent.parentApp.queue_event(npyscreen.Event("event_chat_select"))
 
     def update_chat(self):
+        client = self.parent.parentApp.client
         current_user = self.value
         unread = 0
 
@@ -40,11 +40,14 @@ class ChatBox(npyscreen.BoxTitle):
 
             timestamp = int(time.time())
 
-            mute_until = client.dialogs[i].dialog.notify_settings.mute_until
-            mute_until = 0 if mute_until is None else int(mute_until)
+            mute_until_dt = client.dialogs[i].dialog.notify_settings.mute_until
 
-            if timestamp >= int(mute_until):
-                unread += int(client.dialogs[i].unread_count)
+            if mute_until_dt is None:
+                mute_timestamp = 0
+            else:
+                mute_timestamp = int(mute_until_dt.timestamp())
+
+            is_not_muted = timestamp >= mute_timestamp
 
             highlight = []
             if client.online[i] == "Online":
@@ -53,7 +56,7 @@ class ChatBox(npyscreen.BoxTitle):
 
             if client.dialogs[i].unread_count != 0 and i != current_user:
                 data.append(special + client.dialogs[i].name + "[" + str(client.dialogs[i].unread_count) + "]")
-                color = len(special) * [color_new_message] if timestamp >= mute_until else [0, 0]
+                color = len(special) * [color_new_message] if is_not_muted else [0, 0]
                 color_data.append(color)
                 color_data[i].extend(highlight)
             else:

@@ -1,5 +1,4 @@
 import curses
-from telegramtui.src.telegramApi import client
 from telegramtui.src import npyscreen
 
 
@@ -22,6 +21,7 @@ class RemoveMessageForm(npyscreen.ActionForm):
         self.display()
 
     def on_ok(self):
+        client = self.parentApp.client
         current_message = self.parentApp.MainForm.messageBoxObj.entry_widget.cursor_line
         current_user = self.parentApp.MainForm.chatBoxObj.value
         messages = self.parentApp.MainForm.messageBoxObj.get_messages_info(current_user)

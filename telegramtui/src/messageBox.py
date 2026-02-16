@@ -1,7 +1,6 @@
 import textwrap
 import os.path
 from telegramtui.src import npyscreen
-from telegramtui.src.telegramApi import client
 from PIL import Image
 
 
@@ -9,6 +8,7 @@ class MessageBox(npyscreen.BoxTitle):
 
     # like a __init__
     def create(self, **kwargs):
+        client = self.parent.parentApp.client
         self.emoji = kwargs['emoji'] if 'emoji' in kwargs else False
         self.aalib = kwargs['aalib'] if 'aalib' in kwargs else False
 
@@ -24,6 +24,7 @@ class MessageBox(npyscreen.BoxTitle):
 
     def update_messages(self, current_user):
         messages = self.get_messages_info(current_user)
+        client = self.parent.parentApp.client
 
         color_data = []
         data = []
@@ -51,6 +52,7 @@ class MessageBox(npyscreen.BoxTitle):
         self.display()
 
     def get_messages_info(self, current_user):
+        client = self.parent.parentApp.client
         messages = client.get_messages(current_user)
 
         # get user info
@@ -127,6 +129,7 @@ class MessageBox(npyscreen.BoxTitle):
 
     # get names, colors for names
     def get_user_info(self, messages, current_user):
+        client = self.parent.parentApp.client
 
         # structure for the dictionary
         class user_info:
@@ -255,6 +258,7 @@ class MessageBox(npyscreen.BoxTitle):
 
     # add media to Message structure
     def prepare_media(self, out, media, name, image_name, read, mess_id, color, date):
+        client = self.parent.parentApp.client
         if media is not None:
             if hasattr(media, 'photo') and self.aalib:
                 import aalib

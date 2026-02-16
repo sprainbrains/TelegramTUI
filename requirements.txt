@@ -1,0 +1,8 @@
+npyscreen==5.0.2
+Pillow==6.2.1
+pyaes==1.6.1
+pyasn1==0.4.7
+PySocks==1.7.1
+python-aalib==0.3.2
+rsa==4.0
+Telethon==1.42.0

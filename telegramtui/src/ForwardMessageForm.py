@@ -1,11 +1,11 @@
 import curses
-from telegramtui.src.telegramApi import client
 from telegramtui.src import npyscreen
 
 
 class ForwardMessage(npyscreen.BoxTitle):
 
     def create(self):
+        client = self.parent.parentApp.client
         data = []
         for i in range(len(client.dialogs)):
             data.append(client.dialogs[i].name)
@@ -13,6 +13,7 @@ class ForwardMessage(npyscreen.BoxTitle):
         self.values = data
 
     def when_value_edited(self):
+        client = self.parentApp.client
         if self.value is not None:
             current_message = self.parent.parentApp.MainForm.messageBoxObj.entry_widget.cursor_line
             current_user = self.parent.parentApp.MainForm.chatBoxObj.value

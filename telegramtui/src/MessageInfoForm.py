@@ -1,5 +1,4 @@
 import curses
-from telegramtui.src.telegramApi import client
 from telegramtui.src import npyscreen
 import textwrap
 from datetime import timedelta
@@ -29,6 +28,7 @@ class MessageInfoForm(npyscreen.ActionForm):
         self.text = self.add(npyscreen.TitleMultiLine, name="Text:      ", max_height=5, scroll_exit=True)
 
     def update(self):
+        client = self.parentApp.client
         current_user = self.parentApp.MainForm.chatBoxObj.value
         current_user_name = client.dialogs[current_user].name
         current_message = self.parentApp.MainForm.messageBoxObj.value

@@ -1,6 +1,5 @@
 import curses
 import os
-from telegramtui.src.telegramApi import client
 from telegramtui.src import npyscreen
 
 
@@ -24,6 +23,7 @@ class SendFileForm(npyscreen.ActionForm):
         self.display()
 
         if os.path.isfile(self.filename.value):
+            client = self.parentApp.client
             current_user = self.parentApp.MainForm.chatBoxObj.value
             client.file_send(self.filename.value, current_user, self.download_progress)
             # need change it
